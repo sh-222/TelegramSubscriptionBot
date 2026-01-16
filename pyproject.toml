@@ -1,0 +1,48 @@
+[project]
+name = "telegramsubscriptionbot"
+version = "0.1.0"
+description = "Telegram Subscription Checker Bot"
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+
+dependencies = [
+    # Telegram
+    "aiogram==3.24.0",
+    # Database
+    "SQLAlchemy==2.0.37",
+    "asyncpg==0.30.0",
+    # Redis (async)
+    "redis==5.2.1",
+    # Config
+    "pydantic==2.10.4",
+    "pydantic-settings==2.7.0",
+    # Logging
+    "structlog==24.4.0",
+    "alembic==1.14.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff==0.9.4",
+    "mypy==1.14.1",
+    "pytest==8.3.4",
+    "pytest-asyncio==0.25.2",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_any_generics = true
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
