@@ -1,9 +1,12 @@
 from datetime import datetime
-from sqlalchemy import BigInteger, String, DateTime
+
+from sqlalchemy import BigInteger, DateTime, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
 
 class Base(DeclarativeBase):
     pass
+
 
 class Channel(Base):
     __tablename__ = "channels"

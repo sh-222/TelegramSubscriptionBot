@@ -1,5 +1,6 @@
 import asyncio
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from aiogram import Bot
 from aiogram.client.session.middlewares.base import BaseRequestMiddleware

@@ -13,7 +13,7 @@
 *   **Производительность**: Использует Redis для кэширования статусов подписки (снижение нагрузки на Telegram API).
 *   **Надежность**:
     *   `RetryMiddleware` для повторных запросов при сетевых сбоях.
-    *   `entrypoint.sh` для автоматических миграций при старте.
+    *   Автоматические миграции базы данных при запуске.
     *   Docker Healthchecks для корректного запуска зависимостей.
 *   **Стек**: Python 3.13, Aiogram 3.24, SQLAlchemy (Async), PostgreSQL, Redis, Docker.
 
@@ -23,19 +23,52 @@
 
 ```text
 .
-├── app/
-│   ├── bot/                # Telegram слой (Handlers, Middlewares)
-│   ├── services/           # Бизнес-логика (SubscriptionService)
-│   ├── storage/            # Слой данных (Repositories, Engine)
-│   ├── models/             # SQLAlchemy модели
-│   ├── config.py           # Конфигурация (Pydantic)
-│   ├── container.py        # DI Контейнер
-│   └── main.py             # Точка входа
-├── alembic/                # Миграции БД
-├── entrypoint.sh           # Скрипт запуска (Migarations + App)
+├── .dockerignore           # Файлы, игнорируемые при сборке Docker
+├── .env.example            # Пример файла конфигурации окружения
+├── .gitignore              # Файлы, игнорируемые Git
+├── .python-version         # Версия Python для проекта
+├── alembic.ini             # Конфигурация Alembic для миграций
+├── docker-compose.yml      # Оркестрация (Bot + Postgres + Redis + Migration Service)
 ├── Dockerfile              # Multi-stage сборка
-├── docker-compose.yml      # Оркестрация (Bot + Postgres + Redis)
-└── pyproject.toml          # Зависимости (uv)
+├── pyproject.toml          # Зависимости (uv)
+├── README.md               # Документация проекта
+├── uv.lock                 # Lock-файл зависимостей uv
+├── alembic/                # Миграции БД
+│   ├── env.py              # Окружение Alembic
+│   ├── README              # Документация по миграциям
+│   ├── script.py.mako      # Шаблон скрипта миграции
+│   └── versions/           # Версии миграций
+│       └── ba051ae155a4_try_migate.py  # Пример миграции
+└── app/                    # Основное приложение
+    ├── __init__.py         # Инициализация модуля
+    ├── config.py           # Конфигурация (Pydantic)
+    ├── container.py        # DI Контейнер
+    ├── logging.py          # Конфигурация логирования
+    ├── main.py             # Точка входа
+    ├── bot/                # Telegram слой (Handlers, Middlewares)
+    │   ├── __init__.py     # Инициализация модуля
+    │   ├── keyboards/      # Клавиатуры бота
+    │   │   ├── __init__.py # Инициализация модуля
+    │   │   └── subscription.py  # Клавиатура подписки
+    │   ├── middlewares/    # Middleware бота
+    │   │   ├── __init__.py # Инициализация модуля
+    │   │   ├── container.py  # DI контейнер для middleware
+    │   │   ├── request.py  # Обработка запросов
+    │   │   └── subscription.py  # Middleware проверки подписки
+    │   └── routers/        # Роутеры бота
+    │       ├── __init__.py # Инициализация модуля
+    │       └── admin.py    # Админ команды
+    ├── models/             # SQLAlchemy модели
+    │   ├── __init__.py     # Инициализация модуля
+    │   └── channel.py      # Модель канала
+    ├── services/           # Бизнес-логика
+    │   ├── __init__.py     # Инициализация модуля
+    │   └── subscription.py # Сервис управления подписками
+    └── storage/            # Слой данных
+        ├── __init__.py     # Инициализация модуля
+        └── repositories/   # Репозитории
+            ├── __init__.py # Инициализация модуля
+            └── channels.py # Репозиторий каналов
 ```
 
 ---
@@ -106,7 +139,6 @@
 2.  Удалите бота из администраторов группы.
 
 ---
----
 
 <a name="english"></a>
 ## 🇺🇸 Telegram Subscription Checker Bot
@@ -119,7 +151,7 @@ A group chat administration bot that enforces mandatory channel subscriptions fo
 *   **Performance**: Redis caching for subscription status (reduces Telegram API calls).
 *   **Reliability**:
     *   `RetryMiddleware` handles network instability.
-    *   `entrypoint.sh` runs migrations automatically on startup.
+    *   Automatic database migrations on startup.
     *   Docker Healthchecks ensure proper startup order.
 *   **Tech Stack**: Python 3.13, Aiogram 3.24, SQLAlchemy (Async), PostgreSQL, Redis, Docker.
 
@@ -129,19 +161,52 @@ A group chat administration bot that enforces mandatory channel subscriptions fo
 
 ```text
 .
-├── app/
-│   ├── bot/                # Telegram layer (Handlers, Middlewares)
-│   ├── services/           # Business logic (SubscriptionService)
-│   ├── storage/            # Data layer (Repositories, Engine)
-│   ├── models/             # SQLAlchemy models
-│   ├── config.py           # Configuration (Pydantic)
-│   ├── container.py        # DI Container
-│   └── main.py             # Entry point
-├── alembic/                # DB Migrations
-├── entrypoint.sh           # Startup script
+├── .dockerignore           # Files ignored during Docker build
+├── .env.example            # Environment configuration example
+├── .gitignore              # Files ignored by Git
+├── .python-version         # Python version for the project
+├── alembic.ini             # Alembic configuration for migrations
+├── docker-compose.yml      # Orchestration (Bot + Postgres + Redis + Migration Service)
 ├── Dockerfile              # Multi-stage build
-├── docker-compose.yml      # Orchestration
-└── pyproject.toml          # Dependencies (uv)
+├── pyproject.toml          # Dependencies (uv)
+├── README.md               # Project documentation
+├── uv.lock                 # Dependency lock file for uv
+├── alembic/                # DB Migrations
+│   ├── env.py              # Alembic environment
+│   ├── README              # Migration documentation
+│   ├── script.py.mako      # Migration script template
+│   └── versions/           # Migration versions
+│       └── ba051ae155a4_try_migate.py  # Sample migration
+└── app/                    # Main application
+    ├── __init__.py         # Module initialization
+    ├── config.py           # Configuration (Pydantic)
+    ├── container.py        # DI Container
+    ├── logging.py          # Logging configuration
+    ├── main.py             # Entry point
+    ├── bot/                # Telegram layer (Handlers, Middlewares)
+    │   ├── __init__.py     # Module initialization
+    │   ├── keyboards/      # Bot keyboards
+    │   │   ├── __init__.py # Module initialization
+    │   │   └── subscription.py  # Subscription keyboard
+    │   ├── middlewares/    # Bot middlewares
+    │   │   ├── __init__.py # Module initialization
+    │   │   ├── container.py  # DI container for middleware
+    │   │   ├── request.py  # Request processing
+    │   │   └── subscription.py  # Subscription check middleware
+    │   └── routers/        # Bot routers
+    │       ├── __init__.py # Module initialization
+    │       └── admin.py    # Admin commands
+    ├── models/             # SQLAlchemy models
+    │   ├── __init__.py     # Module initialization
+    │   └── channel.py      # Channel model
+    ├── services/           # Business logic
+    │   ├── __init__.py     # Module initialization
+    │   └── subscription.py # Subscription management service
+    └── storage/            # Data layer
+        ├── __init__.py     # Module initialization
+        └── repositories/   # Repositories
+            ├── __init__.py # Module initialization
+            └── channels.py # Channels repository
 ```
 
 ---

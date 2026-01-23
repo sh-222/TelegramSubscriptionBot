@@ -1,6 +1,4 @@
-from typing import List
-
-from sqlalchemy import select, delete
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.channel import Channel
